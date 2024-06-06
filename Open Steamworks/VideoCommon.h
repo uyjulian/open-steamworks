@@ -47,8 +47,12 @@ enum EBroadcastUploadResult
 
 #pragma pack( push, 8 )
 
+#define BroadcastUploadStart_t BroadcastUploadStart_t
+
 DEFINE_CALLBACK( BroadcastUploadStart_t, k_iClientVideoCallbacks + 4 )
 END_DEFINE_CALLBACK_0()
+
+#define BroadcastUploadStop_t BroadcastUploadStop_t
 
 DEFINE_CALLBACK( BroadcastUploadStop_t, k_iClientVideoCallbacks + 5 )
 	CALLBACK_MEMBER( 0, EBroadcastUploadResult, m_eResult )
