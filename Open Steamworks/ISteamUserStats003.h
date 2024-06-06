@@ -48,7 +48,7 @@ public:
 	virtual bool SetStat( const char *pchName, float fData ) = 0;
 	virtual bool SetStat( const char *pchName, int32 nData ) = 0;
 #endif
-	virtual bool UpdateAvgRateStat( const char *pchName, float, double dSessionLength ) = 0;
+	virtual bool UpdateAvgRateStat( const char *pchName, float flCountThisSession, double dSessionLength ) = 0;
 
 
 	// Achievement flag accessors
@@ -59,6 +59,8 @@ public:
 	// Store the current data on the server, will get a callback when set
 	// And one callback for every new achievement
 	virtual bool StoreStats( ) = 0;
+
+	// Achievement / GroupAchievement metadata
 
 	// Gets the icon of the achievement, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
 	virtual int GetAchievementIcon( const char *pchName ) = 0;

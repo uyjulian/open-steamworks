@@ -83,7 +83,7 @@ public:
 	// returns the ISteamUserStats interface
 	virtual ISteamUserStats *GetISteamUserStats( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
-	// returns game server stats interface
+	// returns the ISteamGameServerStats interface
 	virtual ISteamGameServerStats *GetISteamGameServerStats( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
 	// returns apps interface

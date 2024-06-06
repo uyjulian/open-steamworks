@@ -47,7 +47,7 @@ public:
 	// friend iteration
 	// takes a set of k_EFriendFlags, and returns the number of users the client knows about who meet that criteria
 	// then GetFriendByIndex() can then be used to return the id's of each of those users
-	virtual int GetFriendCount( EFriendFlags eFriendFlags ) = 0;
+	virtual int GetFriendCount( int iFriendFlags ) = 0;
 
 	// returns the steamID of a user
 	// iFriend is a index of range [0, GetFriendCount())
@@ -74,7 +74,7 @@ public:
 
 	// returns true if the specified user meets any of the criteria specified in iFriendFlags
 	// iFriendFlags can be the union (binary or, |) of one or more k_EFriendFlags values
-	virtual bool HasFriend( CSteamID steamIDFriend, EFriendFlags eFriendFlags ) = 0;
+	virtual bool HasFriend( CSteamID steamIDFriend, int iFriendFlags ) = 0;
 
 	// clan (group) iteration and access functions
 	virtual int GetClanCount() = 0;
@@ -95,13 +95,15 @@ public:
 	virtual void SetInGameVoiceSpeaking( CSteamID steamIDUser, bool bSpeaking ) = 0;
 
 	// activates the game overlay, with an optional dialog to open 
-	// valid options are "Friends", "Community", "Players", "Settings", "LobbyInvite", "OfficialGameGroup"
+	// valid options are "Friends", "Community", "Players", "Settings", "LobbyInvite", "OfficialGameGroup", "Stats", "Achievements"
 	virtual void ActivateGameOverlay( const char *pchDialog ) = 0;
 
 	// activates game overlay to a specific place
 	// valid options are
 	//		"steamid" - opens the overlay web browser to the specified user or groups profile
 	//		"chat" - opens a chat window to the specified user, or joins the group chat 
+	//		"stats" - opens the overlay web browser to the specified user's stats
+	//		"achievements" - opens the overlay web browser to the specified user's achievements
 	virtual void ActivateGameOverlayToUser( const char *pchDialog, CSteamID steamID ) = 0;
 
 	// activates game overlay web browser directly to the specified URL
@@ -119,11 +121,15 @@ public:
 	// You can also use ActivateGameOverlay( "LobbyInvite" ) to allow the user to create invitations for their current public lobby.
 	virtual void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby ) = 0;
 
-	// gets the avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
+	// gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
 	virtual int GetSmallFriendAvatar( CSteamID steamIDFriend ) = 0;
-	virtual int GetMediumFriendAvatar( CSteamID steamIDFriend ) = 0;
-	virtual int GetLargeFriendAvatar( CSteamID steamIDFriend ) = 0;
 
+	// gets the medium (64x64) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
+	virtual int GetMediumFriendAvatar( CSteamID steamIDFriend ) = 0;
+
+	// gets the large (184x184) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
+	// returns -1 if this image has yet to be loaded, in this case wait for a AvatarImageLoaded_t callback and then call this again
+	virtual int GetLargeFriendAvatar( CSteamID steamIDFriend ) = 0;
 };
 
 

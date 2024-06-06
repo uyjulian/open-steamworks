@@ -58,6 +58,11 @@ public:
 	// Install/Uninstall control for optional DLC
 	virtual void InstallDLC( AppId_t nAppID ) = 0;
 	virtual void UninstallDLC( AppId_t nAppID ) = 0;
+
+#ifdef _PS3
+	// Result returned in a RegisterActivationCodeResponse_t callresult
+	virtual SteamAPICall_t RegisterActivationCode( const char *pchActivationCode ) = 0;
+#endif
 };
 
 

@@ -13,6 +13,7 @@
 // All other trademarks are property of their respective owners.
 //
 //=============================================================================
+#include "RemoteStorageCommon.h"
 
 #ifndef UGCCOMMON_H
 #define UGCCOMMON_H
@@ -25,7 +26,6 @@
 #define STEAMUGC_INTERFACE_VERSION_002 "STEAMUGC_INTERFACE_VERSION002"
 #define STEAMUGC_INTERFACE_VERSION_003 "STEAMUGC_INTERFACE_VERSION003"
 
-typedef uint64 UGCQueryHandle_t;
 typedef uint64 UGCQueryHandle_t;
 typedef uint64 UGCUpdateHandle_t;
 
@@ -80,6 +80,8 @@ enum EUGCMatchingUGCType
 	k_EUGCMatchingUGCType_IntegratedGuides = 9,
 	k_EUGCMatchingUGCType_UsableInGame = 10,		// ready-to-use items and integrated guides
 	k_EUGCMatchingUGCType_ControllerBindings = 11,
+	k_EUGCMatchingUGCType_GameManagedItems = 12,		// game managed items (not managed by users)
+	k_EUGCMatchingUGCType_All = ~0,		// return everything
 };
 
 // Sort order for user published UGC lists (defaults to creation order descending)
@@ -93,6 +95,32 @@ enum EUserUGCListSortOrder
 	k_EUserUGCListSortOrder_VoteScoreDesc,
 	k_EUserUGCListSortOrder_ForModeration,
 };
+
+enum EItemState
+{
+	k_EItemStateNone			= 0,	// item not tracked on client
+	k_EItemStateSubscribed		= 1,	// current user is subscribed to this item. Not just cached.
+	k_EItemStateLegacyItem		= 2,	// item was created with ISteamRemoteStorage
+	k_EItemStateInstalled		= 4,	// item is installed and usable (but maybe out of date)
+	k_EItemStateNeedsUpdate		= 8,	// items needs an update. Either because it's not installed yet or creator updated content
+	k_EItemStateDownloading		= 16,	// item update is currently downloading
+	k_EItemStateDownloadPending	= 32,	// DownloadItem() was called for this item, content isn't available until DownloadItemResult_t is fired
+};
+
+enum EItemStatistic
+{
+	k_EItemStatistic_NumSubscriptions		= 0,
+	k_EItemStatistic_NumFavorites			= 1,
+	k_EItemStatistic_NumFollowers			= 2,
+	k_EItemStatistic_NumUniqueSubscriptions = 3,
+	k_EItemStatistic_NumUniqueFavorites		= 4,
+	k_EItemStatistic_NumUniqueFollowers		= 5,
+	k_EItemStatistic_NumUniqueWebsiteViews	= 6,
+	k_EItemStatistic_ReportScore			= 7,
+};
+
+const uint32 kNumUGCResultsPerPage = 50;
+const uint32 k_cchDeveloperMetadataMax = 5000;
 
 // Details for a single published file/UGC
 struct SteamUGCDetails_t
@@ -136,6 +164,22 @@ enum EItemUpdateStatus
 	k_EItemUpdateStatusUploadingPreviewFile = 4, // The item update is uploading new preview file image
 	k_EItemUpdateStatusCommittingChanges = 5  // The item update is committing all changes
 };
+
+#define STEAMUGC_INTERFACE_VERSION001 "STEAMUGC_INTERFACE_VERSION001"
+#define STEAMUGC_INTERFACE_VERSION002 "STEAMUGC_INTERFACE_VERSION002"
+#define STEAMUGC_INTERFACE_VERSION003 "STEAMUGC_INTERFACE_VERSION003"
+#define STEAMUGC_INTERFACE_VERSION004 "STEAMUGC_INTERFACE_VERSION004"
+#define STEAMUGC_INTERFACE_VERSION005 "STEAMUGC_INTERFACE_VERSION005"
+#define STEAMUGC_INTERFACE_VERSION006 "STEAMUGC_INTERFACE_VERSION006"
+#define STEAMUGC_INTERFACE_VERSION007 "STEAMUGC_INTERFACE_VERSION007"
+#define STEAMUGC_INTERFACE_VERSION008 "STEAMUGC_INTERFACE_VERSION008"
+#define STEAMUGC_INTERFACE_VERSION009 "STEAMUGC_INTERFACE_VERSION009"
+#define STEAMUGC_INTERFACE_VERSION010 "STEAMUGC_INTERFACE_VERSION010"
+#define STEAMUGC_INTERFACE_VERSION012 "STEAMUGC_INTERFACE_VERSION012"
+#define STEAMUGC_INTERFACE_VERSION013 "STEAMUGC_INTERFACE_VERSION013"
+
+
+#pragma pack( push, 8 )
 
 //-----------------------------------------------------------------------------
 // Purpose: Callback for querying UGC
@@ -186,7 +230,7 @@ struct SubmitItemUpdateResult_t
 
 
 //-----------------------------------------------------------------------------
-// Purpose: a new Workshop item has been installed
+// Purpose: a new Workshop item has been installed or updated
 //-----------------------------------------------------------------------------
 struct ItemInstalled_t
 {
@@ -194,5 +238,57 @@ struct ItemInstalled_t
 	AppId_t m_unAppID;
 	PublishedFileId_t m_nPublishedFileId;
 };
+
+
+//-----------------------------------------------------------------------------
+// Purpose: result of DownloadItem(), existing item files can be accessed again
+//-----------------------------------------------------------------------------
+struct DownloadItemResult_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 6 };
+	AppId_t m_unAppID;
+	PublishedFileId_t m_nPublishedFileId;
+	EResult m_eResult;
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: result of AddItemToFavorites() or RemoveItemFromFavorites()
+//-----------------------------------------------------------------------------
+struct UserFavoriteItemsListChanged_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 7 };
+	PublishedFileId_t m_nPublishedFileId;
+	EResult m_eResult;
+	bool m_bWasAddRequest;
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: The result of a call to SetUserItemVote()
+//-----------------------------------------------------------------------------
+struct SetUserItemVoteResult_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 8 };
+	PublishedFileId_t m_nPublishedFileId;
+	EResult m_eResult;
+	bool m_bVoteUp;
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: The result of a call to GetUserItemVote()
+//-----------------------------------------------------------------------------
+struct GetUserItemVoteResult_t
+{
+	enum { k_iCallback = k_iClientUGCCallbacks + 9 };
+	PublishedFileId_t m_nPublishedFileId;
+	EResult m_eResult;
+	bool m_bVotedUp;
+	bool m_bVotedDown;
+	bool m_bVoteSkipped;
+};
+
+#pragma pack( pop )
 
 #endif // UGCCOMMON_H

@@ -22,6 +22,7 @@
 
 #include "SteamTypes.h"
 #include "GameServerCommon.h"
+#include "UserCommon.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Functions for authenticating users via Steam to play on a game server

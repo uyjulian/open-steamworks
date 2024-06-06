@@ -74,7 +74,7 @@ public:
 	// returns the ISteamMatchmakingServers interface
 	virtual ISteamMatchmakingServers *GetISteamMatchmakingServers(HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
 
-	// returns the a generic interface
+	// returns a generic interface
 	virtual void *GetISteamGenericInterface(HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
 
 	// returns the ISteamUserStats interface
@@ -114,6 +114,10 @@ public:
 	// Trigger global shutdown for the DLL
 	virtual bool BShutdownIfAllPipesClosed() = 0;
 
+#ifdef _PS3
+	virtual ISteamPS3OverlayRender *GetISteamPS3OverlayRender() = 0;
+#endif
+
 	// Expose HTTP interface
 	virtual ISteamHTTP *GetISteamHTTP(HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
 
@@ -139,16 +143,19 @@ public:
 	virtual ISteamHTMLSurface *GetISteamHTMLSurface(HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
 
 	// Helper functions for internal Steam usage
-	virtual void Set_SteamAPI_CPostAPIResultInProcess(void(*)(SteamAPICall_t callHandle, void *, uint32 unCallbackSize, int iCallbackNum)) = 0;
-	virtual void Remove_SteamAPI_CPostAPIResultInProcess(void(*)(SteamAPICall_t callHandle, void *, uint32 unCallbackSize, int iCallbackNum)) = 0;
-	virtual void Set_SteamAPI_CCheckCallbackRegisteredInProcess(unsigned int(*)(int iCallbackNum)) = 0;
+	virtual void Set_SteamAPI_CPostAPIResultInProcess( SteamAPI_PostAPIResultInProcess_t func ) = 0;
+	virtual void Remove_SteamAPI_CPostAPIResultInProcess( SteamAPI_PostAPIResultInProcess_t func ) = 0;
+	virtual void Set_SteamAPI_CCheckCallbackRegisteredInProcess( SteamAPI_CheckCallbackRegistered_t func ) = 0;
 
 	// inventory
 	virtual ISteamInventory *GetISteamInventory(HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
 
 	// Video
 	virtual ISteamVideo *GetISteamVideo(HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
+
+	// Parental controls
+	virtual void* GetISteamParentalSettings(HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char* pchVersion) = 0;
 };
 
 
-#endif // ISTEAMCLIENT017_H	
+#endif // ISTEAMCLIENT017_H

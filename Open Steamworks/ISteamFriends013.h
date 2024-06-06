@@ -38,7 +38,13 @@ public:
 	// off; it will eventually be free'd or re-allocated
 	virtual const char *GetPersonaName() = 0;
 
-	// sets the player name, stores it on the server and publishes the changes to all friends who are online
+	// Sets the player name, stores it on the server and publishes the changes to all friends who are online.
+	// Changes take place locally immediately, and a PersonaStateChange_t is posted, presuming success.
+	//
+	// The final results are available through the return value SteamAPICall_t, using SetPersonaNameResponse_t.
+	//
+	// If the name change fails to happen on the server, then an additional global PersonaStateChange_t will be posted
+	// to change the name back, in addition to the SetPersonaNameResponse_t callback.
 	virtual SteamAPICall_t SetPersonaName( const char *pchPersonaName ) = 0;
 
 	// gets the status of the current user
@@ -83,11 +89,14 @@ public:
 	virtual const char *GetClanName( CSteamID steamIDClan ) = 0;
 	virtual const char *GetClanTag( CSteamID steamIDClan ) = 0;
 
-	virtual bool GetClanActivityCounts( CSteamID steamID, int *pnOnline, int *pnInGame, int *pnChatting ) = 0;
-	virtual SteamAPICall_t DownloadClanActivityCounts( CSteamID groupIDs[], int nIds ) = 0;
+	// returns the most recent information we have about what's happening in a clan
+	virtual bool GetClanActivityCounts( CSteamID steamIDClan, int *pnOnline, int *pnInGame, int *pnChatting ) = 0;
+	// for clans a user is a member of, they will have reasonably up-to-date information, but for others you'll have to download the info to have the latest
+	virtual SteamAPICall_t DownloadClanActivityCounts( CSteamID *psteamIDClans, int cClansToRequest ) = 0;
 
 	// iterators for getting users in a chat room, lobby, game server or clan
 	// note that large clans that cannot be iterated by the local user
+	// note that the current user must be in a lobby to retrieve CSteamIDs of other users in that lobby
 	// steamIDSource can be the steamID of a group, game server, lobby or chat room
 	virtual int GetFriendCountFromSource( CSteamID steamIDSource ) = 0;
 	STEAMWORKS_STRUCT_RETURN_2(CSteamID, GetFriendFromSourceByIndex, CSteamID, steamIDSource, int, iFriend) /*virtual CSteamID GetFriendFromSourceByIndex( CSteamID steamIDSource, int iFriend ) = 0;*/
@@ -99,15 +108,20 @@ public:
 	virtual void SetInGameVoiceSpeaking( CSteamID steamIDUser, bool bSpeaking ) = 0;
 
 	// activates the game overlay, with an optional dialog to open 
-	// valid options are "Friends", "Community", "Players", "Settings", "LobbyInvite", "OfficialGameGroup", "Stats", "Achievements"
+	// valid options are "Friends", "Community", "Players", "Settings", "OfficialGameGroup", "Stats", "Achievements"
 	virtual void ActivateGameOverlay( const char *pchDialog ) = 0;
 
 	// activates game overlay to a specific place
 	// valid options are
 	//		"steamid" - opens the overlay web browser to the specified user or groups profile
 	//		"chat" - opens a chat window to the specified user, or joins the group chat 
+	//		"jointrade" - opens a window to a Steam Trading session that was started with the ISteamEconomy/StartTrade Web API
 	//		"stats" - opens the overlay web browser to the specified user's stats
 	//		"achievements" - opens the overlay web browser to the specified user's achievements
+	//		"friendadd" - opens the overlay in minimal mode prompting the user to add the target user as a friend
+	//		"friendremove" - opens the overlay in minimal mode prompting the user to remove the target friend
+	//		"friendrequestaccept" - opens the overlay in minimal mode prompting the user to accept an incoming friend invite
+	//		"friendrequestignore" - opens the overlay in minimal mode prompting the user to ignore an incoming friend invite
 	virtual void ActivateGameOverlayToUser( const char *pchDialog, CSteamID steamID ) = 0;
 
 	// activates game overlay web browser directly to the specified URL
@@ -122,7 +136,6 @@ public:
 	virtual void SetPlayedWith( CSteamID steamIDUserPlayedWith ) = 0;
 
 	// activates game overlay to open the invite dialog. Invitations will be sent for the provided lobby.
-	// You can also use ActivateGameOverlay( "LobbyInvite" ) to allow the user to create invitations for their current public lobby.
 	virtual void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby ) = 0;
 
 	// gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
@@ -161,7 +174,7 @@ public:
 	// if current user is chat restricted, he can't send or receive any text/voice chat messages.
 	// the user can't see custom avatars. But the user can be online and send/recv game invites.
 	// a chat restricted user can't add friends or join any groups.
-	virtual EUserRestriction GetUserRestrictions() = 0;
+	virtual uint32 GetUserRestrictions() = 0;
 
 	// Rich Presence data is automatically shared between friends who are in the same game
 	// Each user has a set of Key/Value pairs
@@ -178,6 +191,7 @@ public:
 	virtual const char *GetFriendRichPresence( CSteamID steamIDFriend, const char *pchKey ) = 0;
 	virtual int GetFriendRichPresenceKeyCount( CSteamID steamIDFriend ) = 0;
 	virtual const char *GetFriendRichPresenceKeyByIndex( CSteamID steamIDFriend, int iKey ) = 0;
+	// Requests rich presence for a specific user.
 	virtual void RequestFriendRichPresence( CSteamID steamIDFriend ) = 0;
 
 	// rich invite support

@@ -133,6 +133,7 @@ public:
 	virtual int GetNumLobbyMembers( CSteamID steamIDLobby ) = 0;
 	// returns the CSteamID of a user in the lobby
 	// iMember is of range [0,GetNumLobbyMembers())
+	// note that the current user must be in a lobby to retrieve CSteamIDs of other users in that lobby
 	STEAMWORKS_STRUCT_RETURN_2(CSteamID, GetLobbyMemberByIndex, CSteamID, steamIDLobby, int, iMember) /*virtual CSteamID GetLobbyMemberByIndex( CSteamID steamIDLobby, int iMember ) = 0;*/
 
 	// Get data associated with this lobby
@@ -178,7 +179,8 @@ public:
 	// this will send down all the metadata associated with a lobby
 	// this is an asynchronous call
 	// returns false if the local user is not connected to the Steam servers
-	// restart are returned by a LobbyDataUpdate_t callback
+	// results will be returned by a LobbyDataUpdate_t callback
+	// if the specified lobby doesn't exist, LobbyDataUpdate_t::m_bSuccess will be set to false
 	virtual bool RequestLobbyData( CSteamID steamIDLobby ) = 0;
 	
 	// sets the game server associated with the lobby
@@ -211,6 +213,13 @@ public:
 	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
 	// after completion, the local user will no longer be the owner
 	virtual bool SetLobbyOwner( CSteamID steamIDLobby, CSteamID steamIDNewOwner ) = 0;
+
+#ifdef _PS3
+	// changes who the lobby owner is
+	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
+	// after completion, the local user will no longer be the owner
+	virtual void CheckForPSNGameBootInvite( unsigned int iGameBootAttributes  ) = 0;
+#endif
 };
 
 #endif // ISTEAMMATCHMAKING008_H

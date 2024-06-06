@@ -83,7 +83,7 @@ public:
 	// returns the ISteamUserStats interface
 	virtual ISteamUserStats *GetISteamUserStats( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
-	// returns game server stats interface
+	// returns the ISteamGameServerStats interface
 	virtual ISteamGameServerStats *GetISteamGameServerStats( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
 	// returns apps interface
@@ -95,6 +95,7 @@ public:
 	// remote storage
 	virtual ISteamRemoteStorage *GetISteamRemoteStorage( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
+	// user screenshots
 	virtual ISteamScreenshots *GetISteamScreenshots( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
 	// this needs to be called every frame to process matchmaking results
@@ -115,6 +116,10 @@ public:
 
 	// Trigger global shutdown for the DLL
 	virtual bool BShutdownIfAllPipesClosed() = 0;
+
+#ifdef _PS3
+	virtual ISteamPS3OverlayRender *GetISteamPS3OverlayRender() = 0;
+#endif
 
 	// Expose HTTP interface
 	virtual ISteamHTTP* GetISteamHTTP( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;

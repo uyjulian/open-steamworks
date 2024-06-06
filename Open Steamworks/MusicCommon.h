@@ -30,4 +30,19 @@ enum AudioPlayback_Status
 
 #define STEAMMUSIC_INTERFACE_VERSION_001 "STEAMMUSIC_INTERFACE_VERSION001"
 
+#pragma pack( push, 8 )
+
+struct PlaybackStatusHasChanged_t
+{
+	enum { k_iCallback = k_iSteamMusicCallbacks + 1 };
+};
+
+struct VolumeHasChanged_t
+{
+	enum { k_iCallback = k_iSteamMusicCallbacks + 2 };
+	float m_flNewVolume;
+};
+
+#pragma pack( pop )
+
 #endif // MUSICCOMMON_H

@@ -94,6 +94,7 @@ struct FavoritesListChanged_t
 	AppId_t m_nAppID;
 	uint32 m_nFlags;
 	bool m_bAdd; // true if this is adding the entry, otherwise it is a remove
+	AccountID_t m_unAccountId;
 };
 
 //-----------------------------------------------------------------------------
@@ -260,6 +261,7 @@ struct LobbyCreated_t
 	uint64 m_ulSteamIDLobby;		// chat room, zero if failed
 };
 
+// used by now obsolete RequestFriendsLobbiesResponse_t
 struct RequestFriendsLobbiesResponse_t
 {
 	enum { k_iCallback = k_iSteamMatchmakingCallbacks + 14 };
@@ -269,6 +271,36 @@ struct RequestFriendsLobbiesResponse_t
 	int m_cResultIndex;
 	int m_cResultsTotal;
 };
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Result of CheckForPSNGameBootInvite
+//			m_eResult == k_EResultOK on success
+//			at this point, the local user may not have finishing joining this lobby;
+//			game code should wait until the subsequent LobbyEnter_t callback is received
+//-----------------------------------------------------------------------------
+struct PSNGameBootInviteResult_t
+{
+	enum { k_iCallback = k_iSteamMatchmakingCallbacks + 15 };
+
+	bool m_bGameBootInviteExists;
+	CSteamID m_steamIDLobby;		// Should be valid if m_bGameBootInviteExists == true
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Result of our request to create a Lobby
+//			m_eResult == k_EResultOK on success
+//			at this point, the lobby has been joined and is ready for use
+//			a LobbyEnter_t callback will also be received (since the local user is joining their own lobby)
+//-----------------------------------------------------------------------------
+struct FavoritesListAccountsUpdated_t
+{
+	enum { k_iCallback = k_iSteamMatchmakingCallbacks + 16 };
+
+	EResult m_eResult;
+};
+
 
 struct GMSQueryResult_t
 {

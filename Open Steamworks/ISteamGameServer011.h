@@ -36,24 +36,24 @@ public:
 //
 	
 	/// This is called by SteamGameServer_Init, and you will usually not need to call it directly
-	virtual bool InitGameServer( uint32 unGameIP, uint16 unGamePort, uint16 usQueryPort, uint32 unServerFlags, AppId_t nAppID, const char *pchVersion ) = 0;
+	virtual bool InitGameServer( uint32 unIP, uint16 usGamePort, uint16 usQueryPort, uint32 unFlags, AppId_t nGameAppId, const char *pchVersionString ) = 0;
 	
 	/// Game product identifier.  This is currently used by the master server for version checking purposes.
 	/// It's a required field, but will eventually will go away, and the AppID will be used for this purpose.
-	virtual void SetProduct( const char *pchProductName ) = 0;
+	virtual void SetProduct( const char *pszProduct ) = 0;
 	
 	/// Description of the game.  This is a required field and is displayed in the steam server browser....for now.
 	/// This is a required field, but it will go away eventually, as the data should be determined from the AppID.
-	virtual void SetGameDescription( const char *pchGameDescription ) = 0;
+	virtual void SetGameDescription( const char *pszGameDescription ) = 0;
 	
 	/// If your game is a "mod," pass the string that identifies it.  The default is an empty string, meaning
 	/// this application is the original game, not a mod.
 	///
 	/// @see k_cbMaxGameServerGameDir
-	virtual void SetModDir( const char *pchModDir ) = 0;
+	virtual void SetModDir( const char *pszModDir ) = 0;
 	
 	/// Is this is a dedicated server?  The default value is false.
-	virtual void SetDedicatedServer( bool bDedicatedServer ) = 0;
+	virtual void SetDedicatedServer( bool bDedicated ) = 0;
 
 //
 // Login
@@ -117,7 +117,7 @@ public:
 	/// @see k_cbMaxGameServerMapName
 	virtual void SetSpectatorServerName( const char *pszSpectatorServerName ) = 0;
 
-	/// Call this to add/update a key/value pair.
+	/// Call this to clear the whole list of key/values that are sent in rules queries.
 	virtual void ClearAllKeyValues() = 0;
 
 	/// Call this to add/update a key/value pair.
@@ -138,7 +138,7 @@ public:
 	virtual void SetGameData( const char *pchGameData ) = 0; 
 
 	/// Region identifier.  This is an optional field, the default value is empty, meaning the "world" region
-	virtual void SetRegion( const char *pchRegionName ) = 0;
+	virtual void SetRegion( const char *pszRegion ) = 0;
 
 //
 // Player list management / authentication
@@ -153,7 +153,7 @@ public:
 	// Return Value: returns true if the users ticket passes basic checks. pSteamIDUser will contain the Steam ID of this user. pSteamIDUser must NOT be NULL
 	// If the call succeeds then you should expect a GSClientApprove_t or GSClientDeny_t callback which will tell you whether authentication
 	// for the user has succeeded or failed (the steamid in the callback will match the one returned by this call)
-	virtual int SendUserConnectAndAuthenticate( uint32 unIPClient, const void *pvAuthBlob, uint32 cubAuthBlobSize, CSteamID *pSteamIDUser ) = 0;
+	virtual bool SendUserConnectAndAuthenticate( uint32 unIPClient, const void *pvAuthBlob, uint32 cubAuthBlobSize, CSteamID *pSteamIDUser ) = 0;
 
 	// Creates a fake user (ie, a bot) which will be listed as playing on the server, but skips validation.  
 	// 
@@ -202,6 +202,7 @@ public:
 // Query steam for server data
 //
 
+	// Beginning 1.28, this two function will be deprecated.
 	// Ask for the gameplay stats for the server. Results returned in a callback
 	virtual void GetGameplayStats( ) = 0;
 
@@ -254,10 +255,10 @@ public:
 	virtual void ForceHeartbeat() = 0;
 
 	// associate this game server with this clan for the purposes of computing player compat
-	virtual SteamAPICall_t AssociateWithClan( CSteamID clanID ) = 0;
+	virtual SteamAPICall_t AssociateWithClan( CSteamID steamIDClan ) = 0;
 	
 	// ask if any of the current players dont want to play with this new player - or vice versa
-	virtual SteamAPICall_t ComputeNewPlayerCompatibility( CSteamID steamID ) = 0;
+	virtual SteamAPICall_t ComputeNewPlayerCompatibility( CSteamID steamIDNewPlayer ) = 0;
 };
 
 #endif // ISTEAMGAMESERVER011_H

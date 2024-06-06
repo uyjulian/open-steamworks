@@ -63,7 +63,8 @@ struct GSClientApprove_t
 {
 	enum { k_iCallback = k_iSteamGameServerCallbacks + 1 };
 
-	CSteamID m_SteamID;
+	CSteamID m_SteamID;			// SteamID of approved player
+	CSteamID m_OwnerSteamID;	// SteamID of original owner for game license
 };
 
 

@@ -60,6 +60,8 @@ public:
 	// And one callback for every new achievement
 	virtual bool StoreStats() = 0;
 
+	// Achievement / GroupAchievement metadata
+
 	// Gets the icon of the achievement, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
 	virtual int GetAchievementIcon( const char *pchName ) = 0;
 	// Get general attributes (display name / text, etc) for an Achievement
@@ -143,10 +145,9 @@ public:
 
 	// Uploads a user score to the Steam back-end.
 	// This call is asynchronous, with the result returned in LeaderboardScoreUploaded_t
-	// If the score passed in is no better than the existing score this user has in the leaderboard, then the leaderboard will not be updated.
 	// Details are extra game-defined information regarding how the user got that score
 	// pScoreDetails points to an array of int32's, cScoreDetailsCount is the number of int32's in the list
-	virtual SteamAPICall_t UploadLeaderboardScore( SteamLeaderboard_t hSteamLeaderboard,ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int32 nScore, int32 *pScoreDetails, int cScoreDetailsCount ) = 0;
+	virtual SteamAPICall_t UploadLeaderboardScore( SteamLeaderboard_t hSteamLeaderboard, ELeaderboardUploadScoreMethod eLeaderboardUploadScoreMethod, int32 nScore, const int32 *pScoreDetails, int cScoreDetailsCount ) = 0;
 
 	// Retrieves the number of players currently playing your game (online + offline)
 	// This call is asynchronous, with the result returned in NumberOfCurrentPlayers_t

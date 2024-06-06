@@ -29,7 +29,7 @@ abstract_class ISteamUserStats004
 public:
 
 
-	// Ask the server to send down this user's data and achievements for nGameID
+	// Ask the server to send down this user's data and achievements for this game
 	virtual bool RequestCurrentStats( ) = 0;
 
 	// Data accessors
@@ -49,7 +49,7 @@ public:
 	virtual bool SetStat( const char *pchName, float fData ) = 0;
 	virtual bool SetStat( const char *pchName, int32 nData ) = 0;
 #endif
-	virtual bool UpdateAvgRateStat( const char *pchName, float, double dSessionLength ) = 0;
+	virtual bool UpdateAvgRateStat( const char *pchName, float flCountThisSession, double dSessionLength ) = 0;
 
 	// Achievement flag accessors
 	virtual bool GetAchievement( const char *pchName, bool *pbAchieved ) = 0;
@@ -60,6 +60,7 @@ public:
 	// And one callback for every new achievement
 	virtual bool StoreStats( ) = 0;
 
+	// Achievement / GroupAchievement metadata
 	
 	// Gets the icon of the achievement, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
 	virtual int GetAchievementIcon( const char *pchName ) = 0;
@@ -88,9 +89,6 @@ public:
 	virtual bool GetUserStat( CSteamID steamIDUser, const char *pchName, int32 *pData ) = 0;
 #endif
 	virtual bool GetUserAchievement( CSteamID steamIDUser, const char *pchName, bool *pbAchieved ) = 0;
-
-	// Reset stats 
-	virtual bool ResetAllStats( bool bAchievementsToo ) = 0;
 };
 
 

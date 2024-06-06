@@ -32,6 +32,8 @@ public:
 	// connection functions
 	virtual void LogOn() = 0;
 	virtual void LogOff() = 0;
+
+	// status functions
 	virtual bool BLoggedOn() = 0;
 
 	virtual bool BSecure() = 0;
@@ -98,6 +100,7 @@ public:
 	virtual bool BGetUserAchievementStatus( CSteamID steamID, const char *pchAchievementName ) = 0;
 
 	// Ask for the gameplay stats for the server. Results returned in a callback
+	// THIS IS NOT PRESENT ON STEAMWORKS SDK
 	virtual void GetGameplayStats( ) = 0;
 
 };

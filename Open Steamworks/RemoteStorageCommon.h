@@ -34,6 +34,8 @@
 #define STEAMREMOTESTORAGE_INTERFACE_VERSION_010 "STEAMREMOTESTORAGE_INTERFACE_VERSION010"
 #define STEAMREMOTESTORAGE_INTERFACE_VERSION_011 "STEAMREMOTESTORAGE_INTERFACE_VERSION011"
 #define STEAMREMOTESTORAGE_INTERFACE_VERSION_012 "STEAMREMOTESTORAGE_INTERFACE_VERSION012"
+#define STEAMREMOTESTORAGE_INTERFACE_VERSION_013 "STEAMREMOTESTORAGE_INTERFACE_VERSION013"
+#define STEAMREMOTESTORAGE_INTERFACE_VERSION_014 "STEAMREMOTESTORAGE_INTERFACE_VERSION014"
 
 #define CLIENTREMOTESTORAGE_INTERFACE_VERSION "CLIENTREMOTESTORAGE_INTERFACE_VERSION001"
 
@@ -42,8 +44,13 @@
 typedef uint64 UGCHandle_t;
 typedef uint64 PublishedFileUpdateHandle_t;
 typedef uint64 PublishedFileId_t;
+const PublishedFileId_t k_PublishedFileIdInvalid = 0;
 const UGCHandle_t k_UGCHandleInvalid = 0xffffffffffffffffull;
 const PublishedFileUpdateHandle_t k_PublishedFileUpdateHandleInvalid = 0xffffffffffffffffull;
+
+// Handle for writing to Steam Cloud
+typedef uint64 UGCFileWriteStreamHandle_t;
+const UGCFileWriteStreamHandle_t k_UGCFileStreamHandleInvalid = 0xffffffffffffffffull;
 
 const uint32 k_cchPublishedDocumentTitleMax = 128 + 1;
 const uint32 k_cchPublishedDocumentDescriptionMax = 8000;
@@ -140,24 +147,25 @@ enum EWorkshopFileType
 {
 	k_EWorkshopFileTypeFirst = 0,
 
-	k_EWorkshopFileTypeCommunity			  = 0,
-	k_EWorkshopFileTypeMicrotransaction		  = 1,
-	k_EWorkshopFileTypeCollection			  = 2,
-	k_EWorkshopFileTypeArt					  = 3,
-	k_EWorkshopFileTypeVideo				  = 4,
-	k_EWorkshopFileTypeScreenshot			  = 5,
-	k_EWorkshopFileTypeGame					  = 6,
-	k_EWorkshopFileTypeSoftware				  = 7,
-	k_EWorkshopFileTypeConcept				  = 8,
-	k_EWorkshopFileTypeWebGuide				  = 9,
-	k_EWorkshopFileTypeIntegratedGuide		  = 10,
-	k_EWorkshopFileTypeMerch				  = 11,
-	k_EWorkshopFileTypeControllerBinding	  = 12,
-	k_EWorkshopFileTypeSteamworksAccessInvite = 13,
-	k_EWorkshopFileTypeSteamVideo			  = 14,
+	k_EWorkshopFileTypeCommunity			  = 0,		// normal Workshop item that can be subscribed to
+	k_EWorkshopFileTypeMicrotransaction		  = 1,		// Workshop item that is meant to be voted on for the purpose of selling in-game
+	k_EWorkshopFileTypeCollection			  = 2,		// a collection of Workshop or Greenlight items
+	k_EWorkshopFileTypeArt					  = 3,		// artwork
+	k_EWorkshopFileTypeVideo				  = 4,		// external video
+	k_EWorkshopFileTypeScreenshot			  = 5,		// screenshot
+	k_EWorkshopFileTypeGame					  = 6,		// Greenlight game entry
+	k_EWorkshopFileTypeSoftware				  = 7,		// Greenlight software entry
+	k_EWorkshopFileTypeConcept				  = 8,		// Greenlight concept
+	k_EWorkshopFileTypeWebGuide				  = 9,		// Steam web guide
+	k_EWorkshopFileTypeIntegratedGuide		  = 10,		// application integrated guide
+	k_EWorkshopFileTypeMerch				  = 11,		// Workshop merchandise meant to be voted on for the purpose of being sold
+	k_EWorkshopFileTypeControllerBinding	  = 12,		// Steam Controller bindings
+	k_EWorkshopFileTypeSteamworksAccessInvite = 13,		// internal
+	k_EWorkshopFileTypeSteamVideo			  = 14,		// Steam video
+	k_EWorkshopFileTypeGameManagedItem		  = 15,		// managed completely by the game, not the user, and not shown on the web
 
 	// Update k_EWorkshopFileTypeMax if you add values.
-	k_EWorkshopFileTypeMax = 15
+	k_EWorkshopFileTypeMax = 16
 	
 };
 
@@ -166,6 +174,7 @@ enum EWorkshopVote
 	k_EWorkshopVoteUnvoted = 0,
 	k_EWorkshopVoteFor = 1,
 	k_EWorkshopVoteAgainst = 2,
+	k_EWorkshopVoteLater = 3,
 };
 
 enum EWorkshopVideoProvider
@@ -418,6 +427,7 @@ struct RemoteStorageFileShareResult_t
 
 	EResult m_eResult;			// The result of the operation
 	UGCHandle_t m_hFile;		// The handle that can be shared with users and features
+	char m_rgchFilename[k_cchFilenameMax]; // The name of the file that was shared
 };
 
 //-----------------------------------------------------------------------------
@@ -697,6 +707,27 @@ struct RemoteStorageEnumeratePublishedFilesByUserActionResult_t
 	int32 m_nTotalResultCount;
 	PublishedFileId_t m_rgPublishedFileId[ k_unEnumeratePublishedFilesMaxResults ];
 	uint32 m_rgRTimes[ k_unEnumeratePublishedFilesMaxResults ];
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Called when a FileWriteAsync completes
+//-----------------------------------------------------------------------------
+struct RemoteStorageFileWriteAsyncComplete_t
+{
+	enum { k_iCallback = k_iClientRemoteStorageCallbacks + 31 };
+	EResult	m_eResult;						// result
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Called when a FileReadAsync completes
+//-----------------------------------------------------------------------------
+struct RemoteStorageFileReadAsyncComplete_t
+{
+	enum { k_iCallback = k_iClientRemoteStorageCallbacks + 32 };
+	SteamAPICall_t m_hFileReadAsync;		// call handle of the async read which was made
+	EResult	m_eResult;						// result
+	uint32 m_nOffset;						// offset in the file this read was at
+	uint32 m_cubRead;						// amount read - will the <= the amount requested
 };
 
 #pragma pack( pop )

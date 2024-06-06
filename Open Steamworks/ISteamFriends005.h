@@ -47,7 +47,7 @@ public:
 	// friend iteration
 	// takes a set of k_EFriendFlags, and returns the number of users the client knows about who meet that criteria
 	// then GetFriendByIndex() can then be used to return the id's of each of those users
-	virtual int GetFriendCount( EFriendFlags eFriendFlags ) = 0;
+	virtual int GetFriendCount( int iFriendFlags ) = 0;
 
 	// returns the steamID of a user
 	// iFriend is a index of range [0, GetFriendCount())
@@ -76,7 +76,7 @@ public:
 
 	// returns true if the specified user meets any of the criteria specified in iFriendFlags
 	// iFriendFlags can be the union (binary or, |) of one or more k_EFriendFlags values
-	virtual bool HasFriend( CSteamID steamIDFriend, EFriendFlags eFriendFlags ) = 0;
+	virtual bool HasFriend( CSteamID steamIDFriend, int iFriendFlags ) = 0;
 
 	// clan (group) iteration and access functions
 	virtual int GetClanCount() = 0;
@@ -96,7 +96,7 @@ public:
 	virtual void SetInGameVoiceSpeaking( CSteamID steamIDUser, bool bSpeaking ) = 0;
 
 	// activates the game overlay, with an optional dialog to open 
-	// valid options are "Friends", "Community", "Players", "Settings", "LobbyInvite", "OfficialGameGroup"
+	// valid options are "Friends", "Community", "Players", "Settings", "LobbyInvite", "OfficialGameGroup", "Stats", "Achievements"
 	virtual void ActivateGameOverlay( const char *pchDialog ) = 0;
 
 	// activates game overlay to a specific place

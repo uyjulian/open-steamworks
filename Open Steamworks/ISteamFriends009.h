@@ -85,6 +85,7 @@ public:
 
 	// iterators for getting users in a chat room, lobby, game server or clan
 	// note that large clans that cannot be iterated by the local user
+	// note that the current user must be in a lobby to retrieve CSteamIDs of other users in that lobby
 	// steamIDSource can be the steamID of a group, game server, lobby or chat room
 	virtual int GetFriendCountFromSource( CSteamID steamIDSource ) = 0;
 	STEAMWORKS_STRUCT_RETURN_2(CSteamID, GetFriendFromSourceByIndex, CSteamID, steamIDSource, int, iFriend) /*virtual CSteamID GetFriendFromSourceByIndex( CSteamID steamIDSource, int iFriend ) = 0;*/
@@ -158,7 +159,7 @@ public:
 	// if current user is chat restricted, he can't send or receive any text/voice chat messages.
 	// the user can't see custom avatars. But the user can be online and send/recv game invites.
 	// a chat restricted user can't add friends or join any groups.
-	virtual EUserRestriction GetUserRestrictions() = 0;
+	virtual uint32 GetUserRestrictions() = 0;
 
 	// Rich Presence data is automatically shared between friends who are in the same game
 	// Each user has a set of Key/Value pairs

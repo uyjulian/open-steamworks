@@ -71,6 +71,24 @@ public:
 	virtual int32	GetCachedUGCCount() = 0;
 	virtual	UGCHandle_t GetCachedUGCHandle( int32 iCachedContent ) = 0;
 
+	// The following functions are only necessary on the Playstation 3. On PC & Mac, the Steam client will handle these operations for you
+	// On Playstation 3, the game controls which files are stored in the cloud, via FilePersist, FileFetch, and FileForget.
+
+#if defined(_PS3) || defined(_SERVER)
+	// Connect to Steam and get a list of files in the Cloud - results in a RemoteStorageAppSyncStatusCheck_t callback
+	virtual void GetFileListFromServer() = 0;
+	// Indicate this file should be downloaded in the next sync
+	virtual bool FileFetch( const char *pchFile ) = 0;
+	// Indicate this file should be persisted in the next sync
+	virtual bool FilePersist( const char *pchFile ) = 0;
+	// Pull any requested files down from the Cloud - results in a RemoteStorageAppSyncedClient_t callback
+	virtual bool SynchronizeToClient() = 0;
+	// Upload any requested files to the Cloud - results in a RemoteStorageAppSyncedServer_t callback
+	virtual bool SynchronizeToServer() = 0;
+	// Reset any fetch/persist/etc requests
+	virtual bool ResetFileRequestState() = 0;
+#endif
+
 	// publishing UGC
 	virtual SteamAPICall_t	PublishFile( const char *pchFile, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags ) = 0;
 	virtual SteamAPICall_t	PublishWorkshopFile( const char *pchFile, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, SteamParamStringArray_t *pTags ) = 0;
@@ -80,6 +98,7 @@ public:
 	virtual SteamAPICall_t	EnumerateUserPublishedFiles( uint32 unStartIndex ) = 0;
 	virtual SteamAPICall_t	SubscribePublishedFile( PublishedFileId_t unPublishedFileId ) = 0;
 	virtual SteamAPICall_t	EnumerateUserSubscribedFiles( uint32 unStartIndex ) = 0;
-	virtual SteamAPICall_t	UnsubscribePublishedFile( PublishedFileId_t unPublishedFileId ) = 0;};
+	virtual SteamAPICall_t	UnsubscribePublishedFile( PublishedFileId_t unPublishedFileId ) = 0;
+};
 
 #endif // ISTEAMREMOTESTORAGE005_H

@@ -72,19 +72,23 @@ public:
 
 	// Achievement / GroupAchievement metadata
 
-	// Gets the icon of the achievement, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set. 
+	// Gets the icon of the achievement, which is a handle to be used in ISteamUtils::GetImageRGBA(), or 0 if none set. 
 	// A return value of 0 may indicate we are still fetching data, and you can wait for the UserAchievementIconFetched_t callback
 	// which will notify you when the bits are ready. If the callback still returns zero, then there is no image set for the
 	// specified achievement.
 	virtual int GetAchievementIcon( const char *pchName ) = 0;
-	// Get general attributes (display name, desc, etc) for an Achievement
+
+	// Get general attributes for an achievement. Accepts the following keys:
+	// - "name" and "desc" for retrieving the localized achievement name and description (returned in UTF8)
+	// - "hidden" for retrieving if an achievement is hidden (returns "0" when not hidden, "1" when hidden)
 	virtual const char *GetAchievementDisplayAttribute( const char *pchName, const char *pchKey ) = 0;
 
 	// Achievement progress - triggers an AchievementProgress callback, that is all.
 	// Calling this w/ N out of N progress will NOT set the achievement, the game must still do that.
 	virtual bool IndicateAchievementProgress( const char *pchName, uint32 nCurProgress, uint32 nMaxProgress ) = 0;
 
-	// Get the number of achievements
+	// Used for iterating achievements. In general games should not need these functions because they should have a
+	// list of existing achievements compiled into them
 	virtual uint32 GetNumAchievements() = 0;
 	// Get achievement name iAchievement in [0,GetNumAchievements)
 	virtual const char *GetAchievementName( uint32 iAchievement ) = 0;
@@ -162,7 +166,7 @@ public:
 	//				...
 	//			}
 	// once you've accessed all the entries, the data will be free'd, and the SteamLeaderboardEntries_t handle will become invalid
-	virtual bool GetDownloadedLeaderboardEntry( SteamLeaderboardEntries_t hSteamLeaderboardEntries, int index, LeaderboardEntry_t *pLeaderboardEntry, int32 pDetails[], int cDetailsMax ) = 0;
+	virtual bool GetDownloadedLeaderboardEntry( SteamLeaderboardEntries_t hSteamLeaderboardEntries, int index, LeaderboardEntry_t *pLeaderboardEntry, int32 *pDetails, int cDetailsMax ) = 0;
 
 	// Uploads a user score to the Steam back-end.
 	// This call is asynchronous, with the result returned in LeaderboardScoreUploaded_t
@@ -222,6 +226,26 @@ public:
 #else
 	virtual int32 GetGlobalStatHistory( const char *pchStatName, double *pData, uint32 cubData ) = 0;
 	virtual int32 GetGlobalStatHistory( const char *pchStatName, int64 *pData, uint32 cubData ) = 0;
+#endif
+
+#ifdef _PS3
+	// Call to kick off installation of the PS3 trophies. This call is asynchronous, and the results will be returned in a PS3TrophiesInstalled_t
+	// callback.
+	virtual bool InstallPS3Trophies() = 0;
+
+	// Returns the amount of space required at boot to install trophies. This value can be used when comparing the amount of space needed
+	// by the game to the available space value passed to the game at boot. The value is set during InstallPS3Trophies().
+	virtual uint64 GetTrophySpaceRequiredBeforeInstall() = 0;
+
+	// On PS3, user stats & achievement progress through Steam must be stored with the user's saved game data.
+	// At startup, before calling RequestCurrentStats(), you must pass the user's stats data to Steam via this method.
+	// If you do not have any user data, call this function with pvData = NULL and cubData = 0
+	virtual bool SetUserStatsData( const void *pvData, uint32 cubData ) = 0;
+
+	// Call to get the user's current stats data. You should retrieve this data after receiving successful UserStatsReceived_t & UserStatsStored_t
+	// callbacks, and store the data with the user's save game data. You can call this method with pvData = NULL and cubData = 0 to get the required
+	// buffer size.
+	virtual bool GetUserStatsData( void *pvData, uint32 cubData, uint32 *pcubWritten ) = 0;
 #endif
 };
 
