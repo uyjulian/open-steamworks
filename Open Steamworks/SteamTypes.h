@@ -31,7 +31,7 @@
 #elif defined(__GNUC__)
 
 	#if defined(_WIN32)
-		#if (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6)) && !defined(_S4N_)
+		#if !defined(__clang__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 6)) && !defined(_S4N_)
 			#error "OpenSteamworks requires GCC 4.6 or better on windows"
 		#endif
 	#elif defined(__linux__) || defined(__APPLE_CC__)
